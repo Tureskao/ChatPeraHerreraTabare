@@ -1,7 +1,6 @@
-﻿
-namespace ChatServidor_PeraHerreraTabare
+﻿namespace ChatServidor_PeraHerreraTabare
 {
-    partial class TCP_ServidorChatForm
+    partial class TCP_ClienteChatForm
     {
         /// <summary>
         /// Required designer variable.
@@ -50,15 +49,15 @@ namespace ChatServidor_PeraHerreraTabare
             this.entradaTextBox.Size = new System.Drawing.Size(750, 46);
             this.entradaTextBox.TabIndex = 1;
             // 
-            // TCP_ServidorChatForm
+            // TCP_ClienteChatForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 561);
             this.Controls.Add(this.entradaTextBox);
             this.Controls.Add(this.mostrarTextBox);
-            this.Name = "TCP_ServidorChatForm";
-            this.Text = "TCP_ServidorChatForm";
+            this.Name = "TCP_ClienteChatForm";
+            this.Text = "TCP_ClienteChatForm";
             this.ResumeLayout(false);
             this.PerformLayout();
 
