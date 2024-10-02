@@ -56,8 +56,8 @@
             this.ClientSize = new System.Drawing.Size(784, 561);
             this.Controls.Add(this.entradaTextBox);
             this.Controls.Add(this.mostrarTextBox);
-            this.Name = "UDP_ClienteChatForm";
-            this.Text = "UDP_ClienteChatForm";
+            this.Name = "UDP_ServidorChatForm";
+            this.Text = "UDP_ServidorChatForm";
             this.ResumeLayout(false);
             this.PerformLayout();
 
