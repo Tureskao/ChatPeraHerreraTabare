@@ -18,6 +18,11 @@ namespace ChatServidor_PeraHerreraTabare
         public TCP_ServidorChatForm()
         {
             InitializeComponent();
+            if (lecturaThread == null)
+            {
+                lecturaThread = new Thread(new ThreadStart(EjecutarServidor));
+            }
+            lecturaThread.Start();
         }
 
         private Socket conexion; //Socket para aceptar una conexión
@@ -104,13 +109,14 @@ namespace ChatServidor_PeraHerreraTabare
 
     public void EjecutarServidor()
     {
+        Console.Out.Write("Se ejecutó el Servidor TCP!");
         TcpListener oyente;
         int contador = 1;
         try
         {
             // Paso 1
-            IPAddress local = IPAddress.Parse("127.0.0.1");
-            oyente = new TcpListener(local, 50000);
+            IPAddress local = IPAddress.Parse(VariablesDefaultChat.TCP_Server_IP);
+            oyente = new TcpListener(local, int.Parse(VariablesDefaultChat.TCP_Server_Port));
 
             // Paso 2
             oyente.Start();
@@ -164,6 +170,33 @@ namespace ChatServidor_PeraHerreraTabare
             MessageBox.Show(error.ToString());
         }
     }
-}
+
+        private void btnEnviar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (entradaTextBox.ReadOnly == false)
+                {
+                    escritor.Write("SERVIDOR>>> " + entradaTextBox.Text);
+                    mostrarTextBox.Text += "\r\nSERVIDOR>>> " + entradaTextBox.Text;
+                    if (entradaTextBox.Text == "TERMINAR")
+                    {
+                        conexion.Close();
+                    }
+                    entradaTextBox.Clear();
+                }
+            }
+            catch (SocketException)
+            {
+                mostrarTextBox.Text += "\nError al escribir objeto";
+            }
+        }
+
+        private void configurarToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ConfiguracionesForm configTcpServ = new ConfiguracionesForm("TCP", "Server");
+            configTcpServ.ShowDialog();
+        }
+    }
 
 }

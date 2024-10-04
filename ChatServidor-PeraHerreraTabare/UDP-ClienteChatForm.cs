@@ -72,9 +72,9 @@ namespace ChatServidor_PeraHerreraTabare
         while (true)
         {
             byte[] datos = cliente.Receive(ref puntoRecepcion);
-            MostrarMensaje("\r\nPaquete recibido:" +
-            "\r\nLongitud: " + datos.Length +
-            "\r\nContenido: " + System.Text.Encoding.ASCII.GetString(datos))
+                MostrarMensaje("\r\nPaquete recibido:" +
+                "\r\nLongitud: " + datos.Length +
+                "\r\nContenido: " + System.Text.Encoding.ASCII.GetString(datos));
         }
     }
 }

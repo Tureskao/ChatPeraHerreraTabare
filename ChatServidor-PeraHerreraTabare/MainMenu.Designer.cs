@@ -40,7 +40,7 @@ namespace ChatServidor_PeraHerreraTabare
             // TituloMainMenu
             // 
             this.TituloMainMenu.AutoSize = true;
-            this.TituloMainMenu.Location = new System.Drawing.Point(12, 28);
+            this.TituloMainMenu.Location = new System.Drawing.Point(13, 37);
             this.TituloMainMenu.Name = "TituloMainMenu";
             this.TituloMainMenu.Size = new System.Drawing.Size(246, 45);
             this.TituloMainMenu.TabIndex = 0;
@@ -111,6 +111,7 @@ namespace ChatServidor_PeraHerreraTabare
             this.Controls.Add(this.TituloMainMenu);
             this.Name = "MainMenu";
             this.Text = "MainMenu";
+            this.Load += new System.EventHandler(this.MainMenu_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

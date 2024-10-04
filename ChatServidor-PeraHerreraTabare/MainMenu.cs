@@ -33,14 +33,24 @@ namespace ChatServidor_PeraHerreraTabare
                 if (cbb_mode.SelectedItem.ToString() == "Servidor")
                 {
                     TCP_ServidorChatForm TCP_SCForm = new TCP_ServidorChatForm();
-                    TCP_SCForm.ShowDialog();
+                    TCP_SCForm.Show();
                 }
                 else
                 {
                     TCP_ClienteChatForm TCP_CCForm = new TCP_ClienteChatForm();
-                    TCP_CCForm.ShowDialog();
+                    TCP_CCForm.Show();
                 }
             }
+        }
+
+        private void MainMenu_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MainMenu_Close(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }

@@ -17,6 +17,8 @@ namespace ChatServidor_PeraHerreraTabare
         public TCP_ClienteChatForm()
         {
             InitializeComponent();
+            lecturaThread = new Thread(new ThreadStart(EjecutarCliente));
+            lecturaThread.Start();
         }
 
         private NetworkStream salida; // Flujo para recibir datos
