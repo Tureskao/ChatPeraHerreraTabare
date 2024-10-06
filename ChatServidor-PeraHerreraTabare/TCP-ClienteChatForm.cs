@@ -68,23 +68,6 @@ namespace ChatServidor_PeraHerreraTabare
             }
         }
 
-        private void entradaTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            try
-            {
-                if (e.KeyCode == Keys.Enter && entradaTextBox.ReadOnly == false)
-                {
-                    escritor.Write("CLIENTE>>> " + entradaTextBox.Text);
-                    mostrarTextBox.Text += "\r\nCLIENTE>>> " + entradaTextBox.Text;
-                    entradaTextBox.Clear();
-                }
-            }
-            catch (SocketException)
-            {
-                mostrarTextBox.Text += "\nError al escribir objeto";
-            }
-        }
-
         public void EjecutarCliente()
         {
             TcpClient cliente;
@@ -132,6 +115,27 @@ namespace ChatServidor_PeraHerreraTabare
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 System.Environment.Exit(System.Environment.ExitCode);
             }
+        }
+
+
+        private void btnEnviar_Click(object sender, EventArgs e)
+        {
+            try
+            { 
+                escritor.Write("CLIENTE>>> " + entradaTextBox.Text);
+                mostrarTextBox.Text += "\r\nCLIENTE>>> " + entradaTextBox.Text;
+                entradaTextBox.Clear();   
+            }
+            catch (SocketException)
+            {
+                mostrarTextBox.Text += "\nError al escribir objeto";
+            }
+        }
+
+        private void configurarToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ConfiguracionesForm configTcpServ = new ConfiguracionesForm("TCP", "Server");
+            configTcpServ.ShowDialog();
         }
     }
 }
