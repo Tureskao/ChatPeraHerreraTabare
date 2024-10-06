@@ -57,7 +57,7 @@
             this.Controls.Add(this.entradaTextBox);
             this.Controls.Add(this.mostrarTextBox);
             this.Name = "TCP_ClienteChatForm";
-            this.Text = "TCP_ClienteChatForm";
+            this.Text = "Chat THP - Cliente TCP";
             this.ResumeLayout(false);
             this.PerformLayout();
 

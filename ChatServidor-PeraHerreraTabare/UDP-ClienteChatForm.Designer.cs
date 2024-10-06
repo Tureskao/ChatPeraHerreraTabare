@@ -57,7 +57,7 @@
             this.Controls.Add(this.entradaTextBox);
             this.Controls.Add(this.mostrarTextBox);
             this.Name = "UDP_ClienteChatForm";
-            this.Text = "UDP_ClienteChatForm";
+            this.Text = "Chat THP -Cliente UDP";
             this.ResumeLayout(false);
             this.PerformLayout();
 

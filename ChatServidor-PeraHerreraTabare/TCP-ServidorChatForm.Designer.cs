@@ -85,7 +85,7 @@ namespace ChatServidor_PeraHerreraTabare
             // configurarToolStripMenuItem
             // 
             this.configurarToolStripMenuItem.Name = "configurarToolStripMenuItem";
-            this.configurarToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.configurarToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
             this.configurarToolStripMenuItem.Text = "Configuración";
             this.configurarToolStripMenuItem.Click += new System.EventHandler(this.configurarToolStripMenuItem_Click);
             // 
@@ -100,7 +100,7 @@ namespace ChatServidor_PeraHerreraTabare
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "TCP_ServidorChatForm";
-            this.Text = "TCP_ServidorChatForm";
+            this.Text = "Chat THP - Servidor TCP";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);

@@ -110,7 +110,7 @@ namespace ChatServidor_PeraHerreraTabare
             this.Controls.Add(this.cbb_protocol);
             this.Controls.Add(this.TituloMainMenu);
             this.Name = "MainMenu";
-            this.Text = "MainMenu";
+            this.Text = "Chat THP - Menú principal";
             this.Load += new System.EventHandler(this.MainMenu_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

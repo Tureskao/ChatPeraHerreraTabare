@@ -49,7 +49,7 @@
             this.entradaTextBox.Size = new System.Drawing.Size(750, 46);
             this.entradaTextBox.TabIndex = 1;
             // 
-            // UDP_ClienteChatForm
+            // UDP_ServidorChatForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -57,7 +57,7 @@
             this.Controls.Add(this.entradaTextBox);
             this.Controls.Add(this.mostrarTextBox);
             this.Name = "UDP_ServidorChatForm";
-            this.Text = "UDP_ServidorChatForm";
+            this.Text = "Chat THP - Servidor UDP";
             this.ResumeLayout(false);
             this.PerformLayout();
 
