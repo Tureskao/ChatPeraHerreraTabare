@@ -14,34 +14,66 @@ namespace ChatServidor_PeraHerreraTabare
 {
     public partial class TCP_ServidorChatForm : Form
     {
+        private ConfiguracionesForm configTcpServ;
+
         //Constructor vacío
         public TCP_ServidorChatForm()
         {
             InitializeComponent();
+        }
+
+        private Socket conexion; //Socket para aceptar una conexión
+        private static bool conectado; // Booleano que marca que estamos conectados
+        private Thread lecturaThread; // Thread para procesar los mensajes entrantes
+        private NetworkStream socketStream; //Flujo para datos de la red
+        private BinaryWriter escritor; //Facilita la escritura en el flujo
+        private BinaryReader lector; //Facilita la lectura del flujo
+        private int contador = 1;
+
+        // Inicializa el hilo para la lectura
+        /*
+        private void TCP_ServidorChatForm_Load(object sender, EventArgs e)
+        {
+            ConfiguracionesForm configTcpServ = new ConfiguracionesForm("TCP", "Server");
+            configTcpServ.ShowDialog();
             if (lecturaThread == null)
             {
                 lecturaThread = new Thread(new ThreadStart(EjecutarServidor));
             }
             lecturaThread.Start();
         }
-
-        private Socket conexion; //Socket para aceptar una conexión
-        private Thread lecturaThread; // Thread para procesar los mensajes entrantes
-        private NetworkStream socketStream; //Flujo para datos de la red
-        private BinaryWriter escritor; //Facilita la escritura en el flujo
-        private BinaryReader lector; //Facilita la lectura del flujo
-
-        // Inicializa el hilo para la lectura
-        private void TCP_ServidorChatForm_Load(object sender, EventArgs e)
-        {
-            lecturaThread = new Thread(new ThreadStart(EjecutarServidor));
-            lecturaThread.Start();
-        }
+        */
 
         // Cierra todos los subprocesos asociados con esta aplicacion
         private void TCP_ServidorChatForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            System.Environment.Exit(System.Environment.ExitCode);
+            try
+            {
+                if (escritor != null && lector != null)
+                {
+                    escritor.Close();
+                    lector.Close();
+                }
+                if (socketStream != null)
+                {
+                    socketStream.Close();
+                }
+                if (conexion != null)
+                {
+
+                    conexion.Shutdown(SocketShutdown.Both);
+                    conexion.Close();
+                    conexion = null;
+                }
+                if (lecturaThread != null)
+                {
+                    lecturaThread.Join();
+                }
+            }
+            catch (Exception)
+            {
+                return;
+            }
         }
 
         // Delegado que permite que se haga una llamada al método MostrarMensaje en el hilo
@@ -63,113 +95,53 @@ namespace ChatServidor_PeraHerreraTabare
             }
         }
 
-        
+        private void CambiarNombreVentana(string mensaje)
+        {
+            if (this.InvokeRequired)
+            {
+                Invoke(new displayDelegate(CambiarNombreVentana),
+                    new object[] { mensaje });
+            }
+            else
+            {
+                this.Text = mensaje;
+            }
+        }
+
+
         // Delegado que permite llamar al método DeshabilitarSalida
         // en el subproceso que crea y mantiene la GUI
-        private delegate void DisableInputDelegate(bool value);
+        private delegate void EnableButtonDelegate(bool value);
 
-        // El método DeshabilitarEntrada establece la propiedad ReadOnly de entradaTextBox
+        // El método Deshabilitar Entrada establece la propiedad ReadOnly de entradaTextBox
         // de una manera segura para los subprocesos
-        private void DeshabilitarEntrada(bool valor)
+        private void HabilitarEnviar(bool valor)
         {
             if (entradaTextBox.InvokeRequired)
             {
-                Invoke(new DisableInputDelegate(DeshabilitarEntrada),
+                Invoke(new EnableButtonDelegate(HabilitarEnviar),
                     new object[] { valor });
             }
 
             else
             {
-                entradaTextBox.ReadOnly = valor;
+                btnEnviar.Enabled = valor;
             }
         }
 
-    // Envía al cliente el texto escrito en el Servidor
-    private void entradaTextBox_KeyDown(object sender, KeyEventArgs e)
-    {
-        // Envía el texto al Cliente
-        try
+        private void HabilitarDesconectar(bool valor)
         {
-            if (e.KeyCode == Keys.Enter && entradaTextBox.ReadOnly == false)
+            if (entradaTextBox.InvokeRequired)
             {
-                escritor.Write("SERVIDOR>>> " + entradaTextBox.Text);
-                mostrarTextBox.Text += "\r\nSERVIDOR>>> " + entradaTextBox.Text;
-                if (entradaTextBox.Text == "TERMINAR")
-                {
-                    conexion.Close();
-                }
-                entradaTextBox.Clear();
+                Invoke(new EnableButtonDelegate(HabilitarDesconectar),
+                    new object[] { valor });
             }
-        }
-        catch (SocketException)
-        {
-            mostrarTextBox.Text += "\nError al escribir objeto";
-        }
-    }
 
-    public void EjecutarServidor()
-    {
-        Console.Out.Write("Se ejecutó el Servidor TCP!");
-        TcpListener oyente;
-        int contador = 1;
-        try
-        {
-            // Paso 1
-            IPAddress local = IPAddress.Parse(VariablesDefaultChat.TCP_Server_IP);
-            oyente = new TcpListener(local, int.Parse(VariablesDefaultChat.TCP_Server_Port));
-
-            // Paso 2
-            oyente.Start();
-
-            // Paso 3
-            while (true)
+            else
             {
-                MostrarMensaje("Esperando una conexión \r\n");
-
-                conexion = oyente.AcceptSocket();
-                socketStream = new NetworkStream(conexion);
-                escritor = new BinaryWriter(socketStream);
-                lector = new BinaryReader(socketStream);
-
-                MostrarMensaje("Conexion " + contador + " recibida.\r\n");
-
-                escritor.Write("SERVIDOR>>> Conexión exitosa");
-
-                DeshabilitarEntrada(false); //habilita entradaTextBox
-
-                string laRespuesta = "";
-
-                // Paso 4
-                do
-                {
-                    try
-                    {
-                        laRespuesta = lector.ReadString();
-                        MostrarMensaje("\r\n" + laRespuesta);
-                    }
-                    catch (Exception)
-                    {
-                            break;
-                    }
-                } while (laRespuesta != "CLIENTE>>> TERMINAR" && conexion.Connected);
-
-                MostrarMensaje("\r\nEl usuario terminó la conexión\r\n");
-
-                //Paso 5
-                escritor.Close();
-                lector.Close();
-                socketStream.Close();
-                conexion.Close();
-
-                DeshabilitarEntrada(true);
-                contador++;
+                btnDesconectar.Enabled = valor;
             }
         }
-        catch (Exception error)
-        {
-            MessageBox.Show(error.ToString());
-        }
-    }
 
         private void btnEnviar_Click(object sender, EventArgs e)
         {
@@ -179,10 +151,6 @@ namespace ChatServidor_PeraHerreraTabare
                 {
                     escritor.Write("SERVIDOR>>> " + entradaTextBox.Text);
                     mostrarTextBox.Text += "\r\nSERVIDOR>>> " + entradaTextBox.Text;
-                    if (entradaTextBox.Text == "TERMINAR")
-                    {
-                        conexion.Close();
-                    }
                     entradaTextBox.Clear();
                 }
             }
@@ -194,8 +162,114 @@ namespace ChatServidor_PeraHerreraTabare
 
         private void configurarToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ConfiguracionesForm configTcpServ = new ConfiguracionesForm("TCP", "Server");
             configTcpServ.ShowDialog();
+        }
+
+        private void btnDesconectar_Click(object sender, EventArgs e)
+        {
+            if (conexion != null)
+            {
+                escritor.Write("SERVIDOR>>> TERMINAR CONEXIÓN");
+                MostrarMensaje("\r\nSERVIDOR>>> Conexión Terminada\r\n");
+                btnDesconectar.Enabled = false;
+                btnEnviar.Enabled = false;
+                lector.Close();
+                escritor.Close();
+                socketStream.Close();
+                conexion.Shutdown(SocketShutdown.Both);
+                CambiarNombreVentana(this.Text.Substring(0,22));
+            }
+        }
+
+        private void btnConectar_Click(object sender, EventArgs e)
+        {
+            iniciarConexion();
+        }
+
+        private void iniciarConexion()
+        {
+            if (lecturaThread == null)
+            {
+                conectado = true;
+                ConfiguracionesForm configTcpServ = new ConfiguracionesForm("TCP", "Server");
+                configTcpServ.ShowDialog();
+                lecturaThread = new Thread(new ThreadStart(EjecutarServidor));
+                lecturaThread.Start();
+            }
+            else if (!conectado)
+            {
+                lecturaThread.Join();
+                lecturaThread = null;
+                iniciarConexion();
+            }
+            else
+            {
+                MessageBox.Show("Usted ya está intentando conectarse a: " + VariablesDefaultChat.TCP_Client_IP + ":" + VariablesDefaultChat.TCP_Client_Port,
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+        }
+
+        public void EjecutarServidor()
+        {
+            TcpListener oyente;
+            try
+            {
+                
+                    // Paso 1
+                    IPAddress local = IPAddress.Parse(VariablesDefaultChat.TCP_Server_IP);
+                    oyente = new TcpListener(local, int.Parse(VariablesDefaultChat.TCP_Server_Port));
+
+                    // Paso 2
+                    oyente.Start();
+
+                    // Paso 3
+                while (true && conectado)
+                {
+
+                    MostrarMensaje("Esperando una conexión \r\n");
+                    conexion = oyente.AcceptSocket();
+                    socketStream = new NetworkStream(conexion);
+                    escritor = new BinaryWriter(socketStream);
+                    lector = new BinaryReader(socketStream);
+
+                    MostrarMensaje("Conexion " + contador + " recibida.\r\n");
+
+                    escritor.Write("SERVIDOR>>> Conexión exitosa");
+                    CambiarNombreVentana(this.Text + " - Conectado a" + VariablesDefaultChat.TCP_Client_IP + ":" + VariablesDefaultChat.TCP_Client_Port);
+                    conectado = true;
+
+                    HabilitarDesconectar(true);
+                    HabilitarEnviar(true); //habilita entradaTextBox
+
+                    string laRespuesta = "";
+
+                    // Paso 4
+
+                    while (conexion != null && conexion.Connected)
+                    {
+                        try
+                        {
+                            laRespuesta = lector.ReadString();
+                            MostrarMensaje("\r\n" + laRespuesta);
+                        }
+                        catch (Exception)
+                        {
+                            break;
+                        }
+                    }
+
+                    oyente.Stop();
+                    MostrarMensaje("\r\nSe terminó la conexión\r\n");
+                    contador++;
+                    conectado = false;
+                }
+            }
+            catch (Exception error)
+            {
+                MessageBox.Show(error.ToString());
+            }
         }
     }
 
