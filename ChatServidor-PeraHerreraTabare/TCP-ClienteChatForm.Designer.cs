@@ -56,6 +56,7 @@ namespace ChatServidor_PeraHerreraTabare
             // 
             // btnEnviar
             // 
+            this.btnEnviar.Enabled = false;
             this.btnEnviar.Location = new System.Drawing.Point(688, 526);
             this.btnEnviar.Name = "btnEnviar";
             this.btnEnviar.Size = new System.Drawing.Size(75, 23);

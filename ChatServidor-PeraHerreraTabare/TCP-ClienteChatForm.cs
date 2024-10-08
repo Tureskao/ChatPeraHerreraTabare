@@ -29,6 +29,8 @@ namespace ChatServidor_PeraHerreraTabare
 
         private void TCP_ClienteChatForm_Load(object sender, EventArgs e)
         {
+            ConfiguracionesForm configTCPC = new ConfiguracionesForm("TCP", "Client");
+            configTCPC.ShowDialog();
             lecturaThread = new Thread(new ThreadStart(EjecutarCliente));
             lecturaThread.Start();
         }
@@ -55,16 +57,16 @@ namespace ChatServidor_PeraHerreraTabare
 
         private delegate void DisableInputDelegate(bool value);
 
-        private void DeshabilitarSalida(bool valor)
+        private void HabilitarEnviar(bool valor)
         {
             if (entradaTextBox.InvokeRequired)
             {
-                Invoke(new DisableInputDelegate(DeshabilitarSalida),
+                Invoke(new DisableInputDelegate(HabilitarEnviar),
                 new object[] { valor });
             }
             else
             {
-                entradaTextBox.ReadOnly = valor;
+                btnEnviar.Enabled = valor;
             }
         }
 
@@ -75,7 +77,16 @@ namespace ChatServidor_PeraHerreraTabare
             {
                 // Paso 1
                 cliente = new TcpClient();
-                cliente.Connect("127.0.0.1", 50000);
+
+                try
+                {
+                    cliente.Connect("127.0.0.1", 50000);
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("No pudo conectarse a: " + VariablesDefaultChat.TCP_Client_IP + ":" + VariablesDefaultChat.TCP_Client_Port, "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
 
                 // Paso 2
                 salida = cliente.GetStream();
@@ -84,7 +95,7 @@ namespace ChatServidor_PeraHerreraTabare
                 lector = new BinaryReader(salida);
 
                 MostrarMensaje("\r\nSe recibieron flujos de E/S\r\n");
-                DeshabilitarSalida(false);
+                HabilitarEnviar(true);
 
                 // Paso 3
                 do
@@ -97,9 +108,9 @@ namespace ChatServidor_PeraHerreraTabare
                     }
                     catch (Exception)
                     {
-                        System.Environment.Exit(System.Environment.ExitCode);
+                        break;
                     }
-                } while (mensaje != "SERVIDOR>>> TERMINAR");
+                } while (cliente.Connected);
 
                 // Paso 4
                 escritor.Close();
@@ -107,7 +118,10 @@ namespace ChatServidor_PeraHerreraTabare
                 salida.Close();
                 cliente.Close();
 
-                Application.Exit();
+                MostrarMensaje("\r\nEl servidor terminó la conexión\r\n");
+
+                HabilitarEnviar(false);
+
             }
             catch (Exception error)
             {
@@ -121,10 +135,10 @@ namespace ChatServidor_PeraHerreraTabare
         private void btnEnviar_Click(object sender, EventArgs e)
         {
             try
-            { 
+            {
                 escritor.Write("CLIENTE>>> " + entradaTextBox.Text);
                 mostrarTextBox.Text += "\r\nCLIENTE>>> " + entradaTextBox.Text;
-                entradaTextBox.Clear();   
+                entradaTextBox.Clear();
             }
             catch (SocketException)
             {
@@ -134,7 +148,7 @@ namespace ChatServidor_PeraHerreraTabare
 
         private void configurarToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ConfiguracionesForm configTcpServ = new ConfiguracionesForm("TCP", "Server");
+            ConfiguracionesForm configTcpServ = new ConfiguracionesForm("TCP", "Client");
             configTcpServ.ShowDialog();
         }
     }

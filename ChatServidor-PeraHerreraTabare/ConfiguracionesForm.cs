@@ -13,6 +13,12 @@ namespace ChatServidor_PeraHerreraTabare
     {
         private string propiedadIP;
         private string propiedadPort;
+
+        /// <summary>
+        /// Inicializa el formulario de configuracion, los protocolos que acepta son <br></br>
+        /// • Protocolo: "TCP" / "UDP" <br></br>
+        /// • Modo: "Client" / "Server"
+        /// </summary>
         public ConfiguracionesForm(string Protocolo, string Modo)
         {
             InitializeComponent();
@@ -69,6 +75,7 @@ namespace ChatServidor_PeraHerreraTabare
             {
                 MessageBox.Show("Debe colocar un valor de Puerto correcto; entre 0 y 65535", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            this.Close();
         }
     }
 }
