@@ -13,13 +13,19 @@ namespace ChatServidor_PeraHerreraTabare
         public MainMenu()
         {
             InitializeComponent();
+            Initialize_cbbProtocol();
+            Initialize_cbbMode();
         }
 
         private string[] protocols = new string[] {"TCP", "UDP"};
         private string[] mode = new string[] { "Servidor", "Cliente" };
-        private void initialize_cbbProtocol()
+        private void Initialize_cbbProtocol()
         {
-            
+            cbb_protocol.SelectedIndex = 0;
+        }
+        private void Initialize_cbbMode()
+        {
+            cbb_mode.SelectedIndex = 0;
         }
         private void label1_Click(object sender, EventArgs e)
         {
@@ -51,6 +57,11 @@ namespace ChatServidor_PeraHerreraTabare
         private void MainMenu_Close(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+        private void MainMenu_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            System.Environment.Exit(System.Environment.ExitCode);
         }
     }
 }

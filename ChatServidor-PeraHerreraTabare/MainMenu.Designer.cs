@@ -49,6 +49,7 @@ namespace ChatServidor_PeraHerreraTabare
             // 
             // cbb_protocol
             // 
+            this.cbb_protocol.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbb_protocol.FormattingEnabled = true;
             this.cbb_protocol.Items.AddRange(new object[] {
             "TCP",
@@ -79,6 +80,7 @@ namespace ChatServidor_PeraHerreraTabare
             // 
             // cbb_mode
             // 
+            this.cbb_mode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbb_mode.FormattingEnabled = true;
             this.cbb_mode.Items.AddRange(new object[] {
             "Servidor",
@@ -111,6 +113,7 @@ namespace ChatServidor_PeraHerreraTabare
             this.Controls.Add(this.TituloMainMenu);
             this.Name = "MainMenu";
             this.Text = "Chat THP - Menú principal";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainMenu_FormClosing);
             this.Load += new System.EventHandler(this.MainMenu_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
