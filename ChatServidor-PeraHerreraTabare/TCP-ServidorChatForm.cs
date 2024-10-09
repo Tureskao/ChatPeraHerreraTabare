@@ -165,20 +165,34 @@ namespace ChatServidor_PeraHerreraTabare
             configTcpServ.ShowDialog();
         }
 
-        private void btnDesconectar_Click(object sender, EventArgs e)
+        private void terminarConexion()
         {
+            if (conexion.Connected)
+            {
+                try
+                {
+                    escritor.Write("SERVIDOR>>> TERMINAR CONEXIÓN");
+                }
+                catch (IOException e)
+                {
+                    Console.Out.WriteLine("Error al intentar cerrar conexion: " + e);
+                }
+            }
             if (conexion != null)
             {
-                escritor.Write("SERVIDOR>>> TERMINAR CONEXIÓN");
                 MostrarMensaje("\r\nSERVIDOR>>> Conexión Terminada\r\n");
-                btnDesconectar.Enabled = false;
-                btnEnviar.Enabled = false;
+                HabilitarDesconectar(false);
+                HabilitarEnviar(false);
                 lector.Close();
                 escritor.Close();
                 socketStream.Close();
                 conexion.Shutdown(SocketShutdown.Both);
-                CambiarNombreVentana(this.Text.Substring(0,22));
+                CambiarNombreVentana(this.Text.Substring(0, 22));
             }
+        }
+        private void btnDesconectar_Click(object sender, EventArgs e)
+        {
+            terminarConexion();
         }
 
         private void btnConectar_Click(object sender, EventArgs e)
@@ -237,7 +251,7 @@ namespace ChatServidor_PeraHerreraTabare
                     MostrarMensaje("Conexion " + contador + " recibida.\r\n");
 
                     escritor.Write("SERVIDOR>>> Conexión exitosa");
-                    CambiarNombreVentana(this.Text + " - Conectado a" + VariablesDefaultChat.TCP_Client_IP + ":" + VariablesDefaultChat.TCP_Client_Port);
+                    CambiarNombreVentana(this.Text + " - Conectado a" + VariablesDefaultChat.TCP_Server_IP + ":" + VariablesDefaultChat.TCP_Server_Port);
                     conectado = true;
 
                     HabilitarDesconectar(true);
@@ -247,7 +261,7 @@ namespace ChatServidor_PeraHerreraTabare
 
                     // Paso 4
 
-                    while (conexion != null && conexion.Connected)
+                    while (conexion != null && conexion.Connected && laRespuesta != "CLIENTE>>> TERMINAR CONEXIÓN")
                     {
                         try
                         {
@@ -258,6 +272,11 @@ namespace ChatServidor_PeraHerreraTabare
                         {
                             break;
                         }
+                    }
+
+                    if(laRespuesta == "CLIENTE>>> TERMINAR CONEXIÓN")
+                    {
+                        terminarConexion();
                     }
 
                     oyente.Stop();
