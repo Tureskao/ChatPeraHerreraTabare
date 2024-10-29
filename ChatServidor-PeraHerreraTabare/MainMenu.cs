@@ -1,10 +1,11 @@
-﻿using System;
+﻿using System.Windows.Forms;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Text;
-using System.Windows.Forms;
+
 
 namespace ChatServidor_PeraHerreraTabare
 {
@@ -34,8 +35,9 @@ namespace ChatServidor_PeraHerreraTabare
 
         private void btn_launch_Click(object sender, EventArgs e)
         {
-            if(cbb_protocol.SelectedItem.ToString() == "TCP")
+            if (cbb_protocol.SelectedItem.ToString() == "TCP")
             {
+                // Modo TCP
                 if (cbb_mode.SelectedItem.ToString() == "Servidor")
                 {
                     TCP_ServidorChatForm TCP_SCForm = new TCP_ServidorChatForm();
@@ -45,6 +47,20 @@ namespace ChatServidor_PeraHerreraTabare
                 {
                     TCP_ClienteChatForm TCP_CCForm = new TCP_ClienteChatForm();
                     TCP_CCForm.Show();
+                }
+            }
+            else if (cbb_protocol.SelectedItem.ToString() == "UDP")
+            {
+                // Modo UDP
+                if (cbb_mode.SelectedItem.ToString() == "Servidor")
+                {
+                    UDP_ServidorChatForm UDP_SCForm = new UDP_ServidorChatForm();
+                    UDP_SCForm.Show();
+                }
+                else
+                {
+                    UDP_ClienteChatForm UDP_CCForm = new UDP_ClienteChatForm();
+                    UDP_CCForm.Show();
                 }
             }
         }
@@ -65,3 +81,5 @@ namespace ChatServidor_PeraHerreraTabare
         }
     }
 }
+    
+

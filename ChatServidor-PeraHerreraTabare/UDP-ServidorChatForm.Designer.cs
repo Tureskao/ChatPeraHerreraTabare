@@ -28,39 +28,42 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.mostrarTextBox = new System.Windows.Forms.TextBox();
-            this.entradaTextBox = new System.Windows.Forms.TextBox();
-            this.SuspendLayout();
+            mostrarTextBox = new System.Windows.Forms.TextBox();
+            entradaTextBox = new System.Windows.Forms.TextBox();
+            SuspendLayout();
             // 
             // mostrarTextBox
             // 
-            this.mostrarTextBox.Enabled = false;
-            this.mostrarTextBox.Location = new System.Drawing.Point(13, 13);
-            this.mostrarTextBox.Multiline = true;
-            this.mostrarTextBox.Name = "mostrarTextBox";
-            this.mostrarTextBox.Size = new System.Drawing.Size(750, 450);
-            this.mostrarTextBox.TabIndex = 0;
+            mostrarTextBox.Enabled = false;
+            mostrarTextBox.Location = new System.Drawing.Point(15, 17);
+            mostrarTextBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            mostrarTextBox.Multiline = true;
+            mostrarTextBox.Name = "mostrarTextBox";
+            mostrarTextBox.Size = new System.Drawing.Size(857, 599);
+            mostrarTextBox.TabIndex = 0;
             // 
             // entradaTextBox
             // 
-            this.entradaTextBox.Location = new System.Drawing.Point(13, 480);
-            this.entradaTextBox.Multiline = true;
-            this.entradaTextBox.Name = "entradaTextBox";
-            this.entradaTextBox.Size = new System.Drawing.Size(750, 46);
-            this.entradaTextBox.TabIndex = 1;
+            entradaTextBox.Location = new System.Drawing.Point(15, 640);
+            entradaTextBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            entradaTextBox.Multiline = true;
+            entradaTextBox.Name = "entradaTextBox";
+            entradaTextBox.Size = new System.Drawing.Size(857, 60);
+            entradaTextBox.TabIndex = 1;
             // 
             // UDP_ServidorChatForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 561);
-            this.Controls.Add(this.entradaTextBox);
-            this.Controls.Add(this.mostrarTextBox);
-            this.Name = "UDP_ServidorChatForm";
-            this.Text = "Chat THP - Servidor UDP";
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(896, 748);
+            Controls.Add(entradaTextBox);
+            Controls.Add(mostrarTextBox);
+            Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            Name = "UDP_ServidorChatForm";
+            Text = "Chat THP - Servidor UDP";
+            Load += UDP_ServidorChatForm_Load;
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion

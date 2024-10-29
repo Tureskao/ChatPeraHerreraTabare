@@ -12,70 +12,107 @@ using System.Threading;
 namespace ChatServidor_PeraHerreraTabare
 {
     public partial class UDP_ClienteChatForm : Form
-{
-    public UDP_ClienteChatForm()
     {
-        InitializeComponent();
-    }
-
-    private UdpClient cliente;
-    private IPEndPoint puntoRecepcion;
-
-    private void UDP_ClienteChatForm_Load(object sender, EventArgs e)
-    {
-        puntoRecepcion = new IPEndPoint(new IPAddress(0), 0);
-        cliente = new UdpClient(50001);
-        Thread subproceso =
-            new Thread(new ThreadStart(EsperarPaquetes));
-        subproceso.Start();
-    }
-
-    private void ServidorPaquetesForm_FormClosing(object sender, FormClosingEventArgs e)
-    {
-        System.Environment.Exit(System.Environment.ExitCode);
-    }
-
-    private delegate void DisplayDelegate(string message);
-
-    private void MostrarMensaje(string mensaje)
-    {
-        if (mostrarTextBox.InvokeRequired)
+        public UDP_ClienteChatForm()
         {
-            Invoke(new DisplayDelegate(MostrarMensaje),
-            new object[] { mensaje });
-        }
-        else
-        {
-            mostrarTextBox.Text += mensaje;
-        }
-    }
-
-    private void entradaTextBox_KeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.KeyCode == Keys.Enter)
-        {
-            string paquete = entradaTextBox.Text;
-            mostrarTextBox.Text +=
-                "\r\nEnviado paquete que contiene: " + paquete;
-
-            byte[] datos = System.Text.Encoding.ASCII.GetBytes(paquete);
-
-            cliente.Send(datos, datos.Length, "127.0.0.1", 50000);
-            mostrarTextBox.Text += "\r\nPaquete enviado\r\n";
-            entradaTextBox.Clear();
+            InitializeComponent();
         }
 
-    }
+        private UdpClient cliente;
+        private IPEndPoint puntoRecepcion;
 
-    public void EsperarPaquetes()
-    {
-        while (true)
+        private void UDP_ClienteChatForm_Load(object sender, EventArgs e)
         {
-            byte[] datos = cliente.Receive(ref puntoRecepcion);
+            IPAddress clientIP = IPAddress.Parse(VariablesDefaultChat.UDP_Client_IP);
+            int clientPort = int.Parse(VariablesDefaultChat.UDP_Client_Port);
+
+            puntoRecepcion = new IPEndPoint(clientIP, clientPort);
+            cliente = new UdpClient(clientPort);
+
+            Thread subproceso = new Thread(new ThreadStart(EsperarPaquetes));
+            subproceso.Start();
+        } //fin de la asignación de puertos mediante nuestra variable
+
+
+      
+
+        private void ServidorPaquetesForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            System.Environment.Exit(System.Environment.ExitCode);
+        }//fin del proceso de la aplicación
+         //y libera todos los recursos utilizados por ella,
+         //incluyendo los sockets.
+
+       
+        private delegate void DisplayDelegate(string message);
+
+        private void MostrarMensaje(string mensaje)
+        {
+            if (mostrarTextBox.InvokeRequired)
+            {
+                Invoke(new DisplayDelegate(MostrarMensaje),
+                new object[] { mensaje });
+            }
+            else
+            {
+                mostrarTextBox.Text += mensaje;
+            }
+        }
+
+        private void entradaTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                entradaTextBox.KeyDown += entradaTextBox_KeyDown; //ver si esta bien
+
+                string paquete = entradaTextBox.Text;
+                mostrarTextBox.Text += "\r\nEnviado paquete que contiene: " + paquete;
+
+                byte[] datos = System.Text.Encoding.ASCII.GetBytes(paquete);
+
+                // Utiliza las variables de la clase para obtener la IP y puerto del servidor
+                IPAddress serverIP = IPAddress.Parse(VariablesDefaultChat.UPD_Server_IP);
+                int serverPort = int.Parse(VariablesDefaultChat.UDP_Server_Port);
+
+                cliente.Send(datos, datos.Length, serverIP.ToString(), serverPort);
+                mostrarTextBox.Text += "\r\nPaquete enviado\r\n";
+                entradaTextBox.Clear();
+
+            }
+
+        }
+        public void EsperarPaquetes()
+        {
+            try
+            {
+                while (true)
+                {
+                    byte[] datos = cliente.Receive(ref puntoRecepcion);
+                    string mensaje = System.Text.Encoding.ASCII.GetString(datos);
+                    MostrarMensaje($"\r\nPaquete recibido:\r\nLongitud: {datos.Length}\r\nContenido: {mensaje}");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al recibir paquete: " + ex.Message);
+            }
+        }
+
+        /*
+        public void EsperarPaquetes()
+        {
+            while (true)
+            {
+                byte[] datos = cliente.Receive(ref puntoRecepcion);
                 MostrarMensaje("\r\nPaquete recibido:" +
                 "\r\nLongitud: " + datos.Length +
                 "\r\nContenido: " + System.Text.Encoding.ASCII.GetString(datos));
+            }
+        }
+        */
+        private void UDP_ClienteChatForm_Load_1(object sender, EventArgs e)
+        {
+
         }
     }
-}
 }

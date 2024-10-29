@@ -19,15 +19,18 @@ namespace ChatServidor_PeraHerreraTabare
             InitializeComponent();
         }
 
-        private UdpClient cliente;
-        private IPEndPoint puntoRecepcion;
+        private UdpClient cliente; //clase que maneja la comunicación a través de UDP. Se encarga de enviar y recibir los paquetes.
+        private IPEndPoint puntoRecepcion; //almacenar la dirección IP y el número de puerto de una máquina
 
         private void UDP_ServidorChatForm_Load(object sender, EventArgs e)
         {
-            cliente = new UdpClient(50000);
+            IPAddress serverIP = IPAddress.Parse(VariablesDefaultChat.UPD_Server_IP);
+            int serverPort = int.Parse(VariablesDefaultChat.UDP_Server_Port);
+
+            cliente = new UdpClient(serverPort);
             puntoRecepcion = new IPEndPoint(new IPAddress(0), 0);
-            Thread lecturaThread =
-                new Thread(new ThreadStart(EsperarPaquetes));
+
+            Thread lecturaThread = new Thread(new ThreadStart(EsperarPaquetes));
             lecturaThread.Start();
         }
 
@@ -64,5 +67,7 @@ namespace ChatServidor_PeraHerreraTabare
                 MostrarMensaje("\r\nPaquete enviado\r\n");
             }
         }
+
+
     }
 }
