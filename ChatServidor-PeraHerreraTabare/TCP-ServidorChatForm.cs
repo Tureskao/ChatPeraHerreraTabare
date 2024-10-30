@@ -20,10 +20,12 @@ namespace ChatServidor_PeraHerreraTabare
         public TCP_ServidorChatForm()
         {
             InitializeComponent();
+            MostrarMensaje("Haga click en conectar para iniciar su servidor \r\n");
         }
 
         private Socket conexion; //Socket para aceptar una conexión
         private static bool conectado; // Booleano que marca que estamos conectados
+        private static bool intentandoConectar; // Booleano que marca que estamos intentando conectarnos
         private Thread lecturaThread; // Thread para procesar los mensajes entrantes
         private NetworkStream socketStream; //Flujo para datos de la red
         private BinaryWriter escritor; //Facilita la escritura en el flujo
@@ -117,7 +119,7 @@ namespace ChatServidor_PeraHerreraTabare
         // de una manera segura para los subprocesos
         private void HabilitarEnviar(bool valor)
         {
-            if (entradaTextBox.InvokeRequired)
+            if (btnEnviar.InvokeRequired)
             {
                 Invoke(new EnableButtonDelegate(HabilitarEnviar),
                     new object[] { valor });
@@ -131,7 +133,7 @@ namespace ChatServidor_PeraHerreraTabare
 
         private void HabilitarDesconectar(bool valor)
         {
-            if (entradaTextBox.InvokeRequired)
+            if (btnDesconectar.InvokeRequired)
             {
                 Invoke(new EnableButtonDelegate(HabilitarDesconectar),
                     new object[] { valor });
@@ -142,6 +144,36 @@ namespace ChatServidor_PeraHerreraTabare
                 btnDesconectar.Enabled = valor;
             }
         }
+
+        private void HabilitarConectar(bool valor)
+        {
+            if (btnConectar.InvokeRequired)
+            {
+                Invoke(new EnableButtonDelegate(HabilitarConectar),
+                    new object[] { valor });
+            }
+
+            else
+            {
+                btnConectar.Enabled = valor;
+            }
+        }
+
+        /*
+        private void terminarThread(Thread hiloServidor)
+        {
+            try
+            {
+                hiloServidor.Interrupt();
+                hiloServidor.Join();
+            }
+            catch (ThreadAbortException)
+            {
+                Console.WriteLine("Terminando hilo: " + hiloServidor.Name);
+                return;
+            }
+        }
+        */
 
         private void btnEnviar_Click(object sender, EventArgs e)
         {
@@ -165,25 +197,34 @@ namespace ChatServidor_PeraHerreraTabare
             configTcpServ.ShowDialog();
         }
 
+        private void terminarConexion()
+        {
+            conectado = false;
+            intentandoConectar = false;
+            if (conexion != null && conexion.Connected)
+            {
+                escritor?.Write("SERVIDOR>>> TERMINAR CONEXIÓN");
+                conexion?.Shutdown(SocketShutdown.Both);
+                conexion?.Close();
+            }
+            HabilitarConectar(true);
+            HabilitarDesconectar(false);
+            HabilitarEnviar(false);
+        }
         private void btnDesconectar_Click(object sender, EventArgs e)
         {
-            if (conexion != null)
-            {
-                escritor.Write("SERVIDOR>>> TERMINAR CONEXIÓN");
-                MostrarMensaje("\r\nSERVIDOR>>> Conexión Terminada\r\n");
-                btnDesconectar.Enabled = false;
-                btnEnviar.Enabled = false;
-                lector.Close();
-                escritor.Close();
-                socketStream.Close();
-                conexion.Shutdown(SocketShutdown.Both);
-                CambiarNombreVentana(this.Text.Substring(0,22));
-            }
+            terminarConexion();
+            HabilitarEnviar(false);
+            HabilitarDesconectar(false);
+            HabilitarConectar(true);
         }
 
         private void btnConectar_Click(object sender, EventArgs e)
         {
             iniciarConexion();
+            HabilitarDesconectar(true);
+            HabilitarConectar(false);
+
         }
 
         private void iniciarConexion()
@@ -212,33 +253,43 @@ namespace ChatServidor_PeraHerreraTabare
         }
 
         public void EjecutarServidor()
-        {
-            TcpListener oyente;
+        { 
+            // Paso 1
+            // Crear objeto TCPListener (es creado fuera del TryCatch para que esté en el scope del Finally)
+            IPAddress local = IPAddress.Parse(VariablesDefaultChat.TCP_Server_IP);
+            TcpListener oyente = new TcpListener(IPAddress.Any, int.Parse(VariablesDefaultChat.TCP_Server_Port));
+
             try
             {
-                
-                    // Paso 1
-                    IPAddress local = IPAddress.Parse(VariablesDefaultChat.TCP_Server_IP);
-                    oyente = new TcpListener(local, int.Parse(VariablesDefaultChat.TCP_Server_Port));
-
-                    // Paso 2
-                    oyente.Start();
-
-                    // Paso 3
-                while (true && conectado)
+                conectado = false;
+                intentandoConectar = true;
+                // Paso 2
+                // Empezar a escuchar solicitudes
+                oyente.Start();
+                MostrarMensaje("Esperando una conexión \r\n");
+                while (intentandoConectar && !conectado) { 
+                    if(oyente.Pending())
+                    {
+                        // Objecto Socket, devuelto tras aceptar una conexión
+                        conexion = oyente.AcceptSocket();
+                        conectado = true;
+                    } else
+                    {
+                        Thread.Sleep(100);
+                    }
+                }
+                    intentandoConectar = false;
+                if (conectado)
                 {
-
-                    MostrarMensaje("Esperando una conexión \r\n");
-                    conexion = oyente.AcceptSocket();
                     socketStream = new NetworkStream(conexion);
                     escritor = new BinaryWriter(socketStream);
                     lector = new BinaryReader(socketStream);
-
+                    // Paso 3
+                    // Procesamiento de datos
                     MostrarMensaje("Conexion " + contador + " recibida.\r\n");
 
                     escritor.Write("SERVIDOR>>> Conexión exitosa");
-                    CambiarNombreVentana(this.Text + " - Conectado a" + VariablesDefaultChat.TCP_Client_IP + ":" + VariablesDefaultChat.TCP_Client_Port);
-                    conectado = true;
+                    CambiarNombreVentana(this.Text + " - Conectado a" + VariablesDefaultChat.TCP_Server_IP + ":" + VariablesDefaultChat.TCP_Server_Port);
 
                     HabilitarDesconectar(true);
                     HabilitarEnviar(true); //habilita entradaTextBox
@@ -246,30 +297,61 @@ namespace ChatServidor_PeraHerreraTabare
                     string laRespuesta = "";
 
                     // Paso 4
+                    // Intercambiar información
 
-                    while (conexion != null && conexion.Connected)
+                    while (conexion != null && conexion.Connected && conectado)
                     {
                         try
                         {
-                            laRespuesta = lector.ReadString();
+                            laRespuesta = lector?.ReadString();
                             MostrarMensaje("\r\n" + laRespuesta);
+                        
+                            if (laRespuesta == "CLIENTE>>> TERMINAR CONEXIÓN")
+                            {
+                                conectado = false;
+                                MessageBox.Show("El cliente Terminó la conexión",
+                                "Información",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
+                                break;
+                            }
                         }
                         catch (Exception)
                         {
                             break;
                         }
                     }
-
-                    oyente.Stop();
-                    MostrarMensaje("\r\nSe terminó la conexión\r\n");
-                    contador++;
-                    conectado = false;
                 }
             }
             catch (Exception error)
             {
                 MessageBox.Show(error.ToString());
             }
+            finally
+            {
+                // Paso 5 terminar conexión
+                MostrarMensaje("\r\nSe terminó la conexión\r\n");
+                contador++;
+                // Si siguen existiendo, se cierran
+                try
+                {
+                    escritor?.Close();
+                    lector?.Close();
+                    socketStream?.Close();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("ERROR: " + e);
+                }
+                if(conexion != null && conexion.Connected)
+                {
+                    conexion?.Shutdown(SocketShutdown.Both);
+                    conexion = null;
+                }
+                oyente.Stop();
+                terminarConexion();
+            }
+            return;
         }
     }
 

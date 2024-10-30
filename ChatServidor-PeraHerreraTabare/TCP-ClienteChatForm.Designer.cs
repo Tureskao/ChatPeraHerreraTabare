@@ -35,6 +35,8 @@ namespace ChatServidor_PeraHerreraTabare
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.archivoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.configurarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnConectar = new System.Windows.Forms.Button();
+            this.btnDesconectar = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -90,11 +92,34 @@ namespace ChatServidor_PeraHerreraTabare
             this.configurarToolStripMenuItem.Text = "Configuración";
             this.configurarToolStripMenuItem.Click += new System.EventHandler(this.configurarToolStripMenuItem_Click);
             // 
+            // btnConectar
+            // 
+            this.btnConectar.Location = new System.Drawing.Point(100, 526);
+            this.btnConectar.Name = "btnConectar";
+            this.btnConectar.Size = new System.Drawing.Size(81, 23);
+            this.btnConectar.TabIndex = 7;
+            this.btnConectar.Text = "Conectar";
+            this.btnConectar.UseVisualStyleBackColor = true;
+            this.btnConectar.Click += new System.EventHandler(this.btnConectar_Click);
+            // 
+            // btnDesconectar
+            // 
+            this.btnDesconectar.Enabled = false;
+            this.btnDesconectar.Location = new System.Drawing.Point(13, 526);
+            this.btnDesconectar.Name = "btnDesconectar";
+            this.btnDesconectar.Size = new System.Drawing.Size(81, 23);
+            this.btnDesconectar.TabIndex = 6;
+            this.btnDesconectar.Text = "Desconectar";
+            this.btnDesconectar.UseVisualStyleBackColor = true;
+            this.btnDesconectar.Click += new System.EventHandler(this.btnDesconectar_Click);
+            // 
             // TCP_ClienteChatForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 561);
+            this.Controls.Add(this.btnConectar);
+            this.Controls.Add(this.btnDesconectar);
             this.Controls.Add(this.btnEnviar);
             this.Controls.Add(this.entradaTextBox);
             this.Controls.Add(this.mostrarTextBox);
@@ -117,5 +142,7 @@ namespace ChatServidor_PeraHerreraTabare
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem archivoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem configurarToolStripMenuItem;
+        private System.Windows.Forms.Button btnConectar;
+        private System.Windows.Forms.Button btnDesconectar;
     }
 }
