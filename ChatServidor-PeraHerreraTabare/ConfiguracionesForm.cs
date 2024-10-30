@@ -77,5 +77,10 @@ namespace ChatServidor_PeraHerreraTabare
             }
             this.Close();
         }
+
+        private void txb_DireccionIp_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

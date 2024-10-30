@@ -46,6 +46,7 @@ namespace ChatServidor_PeraHerreraTabare
             this.txb_DireccionIp.Name = "txb_DireccionIp";
             this.txb_DireccionIp.Size = new System.Drawing.Size(262, 23);
             this.txb_DireccionIp.TabIndex = 0;
+            this.txb_DireccionIp.TextChanged += new System.EventHandler(this.txb_DireccionIp_TextChanged);
             // 
             // txb_Puerto
             // 
