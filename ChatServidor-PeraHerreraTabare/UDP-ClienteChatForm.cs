@@ -20,16 +20,21 @@ namespace ChatServidor_PeraHerreraTabare
 
         private UdpClient cliente;
         private IPEndPoint puntoRecepcion;
+        private bool conectado; // Bandera que marca si estamos conectados
+        private Thread subproceso;
 
         private void UDP_ClienteChatForm_Load(object sender, EventArgs e)
         {
+            ConfiguracionesForm configTcpServ = new ConfiguracionesForm("UDP", "Client");
+            configTcpServ.ShowDialog();
+
             IPAddress clientIP = IPAddress.Parse(VariablesDefaultChat.UDP_Client_IP);
             int clientPort = int.Parse(VariablesDefaultChat.UDP_Client_Port);
 
             puntoRecepcion = new IPEndPoint(clientIP, clientPort);
             cliente = new UdpClient(clientPort);
 
-            Thread subproceso = new Thread(new ThreadStart(EsperarPaquetes));
+            subproceso = new Thread(new ThreadStart(EsperarPaquetes));
             subproceso.Start();
         } //fin de la asignación de puertos mediante nuestra variable
 
@@ -38,7 +43,11 @@ namespace ChatServidor_PeraHerreraTabare
 
         private void ServidorPaquetesForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            System.Environment.Exit(System.Environment.ExitCode);
+            if (subproceso.IsAlive)
+            {
+                conectado = false;
+                subproceso.Join();
+            }
         }//fin del proceso de la aplicación
          //y libera todos los recursos utilizados por ella,
          //incluyendo los sockets.
@@ -59,6 +68,41 @@ namespace ChatServidor_PeraHerreraTabare
             }
         }
 
+        private void ClearInput(string Mensaje)
+        {
+            if (mostrarTextBox.InvokeRequired)
+            {
+                Invoke(new DisplayDelegate(ClearInput),
+                new object[] {Mensaje});
+            }
+            else
+            {
+                mostrarTextBox.Text = "";
+            }
+        }
+
+
+        // Delegado que permite llamar al método DeshabilitarSalida
+        // en el subproceso que crea y mantiene la GUI
+        private delegate void EnableButtonDelegate(bool value);
+
+        // El método Deshabilitar Entrada establece la propiedad ReadOnly de entradaTextBox
+        // de una manera segura para los subprocesos
+        private void HabilitarEnviar(bool valor)
+        {
+            if (btnEnviar.InvokeRequired)
+            {
+                Invoke(new EnableButtonDelegate(HabilitarEnviar),
+                    new object[] { valor });
+            }
+
+            else
+            {
+                btnEnviar.Enabled = valor;
+            }
+        }
+
+        /*
         private void entradaTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -81,11 +125,14 @@ namespace ChatServidor_PeraHerreraTabare
             }
 
         }
+        */
         public void EsperarPaquetes()
         {
+            MostrarMensaje("Cliente iniciado, se inicia un intento de conexión al servidor en: " + VariablesDefaultChat.UDP_Client_IP + ":" + VariablesDefaultChat.TCP_Client_Port);
             try
             {
-                while (true)
+                conectado = iniciarConexion();
+                while (conectado)
                 {
                     byte[] datos = cliente.Receive(ref puntoRecepcion);
                     string mensaje = System.Text.Encoding.ASCII.GetString(datos);
@@ -95,7 +142,10 @@ namespace ChatServidor_PeraHerreraTabare
             catch (Exception ex)
             {
                 MessageBox.Show("Error al recibir paquete: " + ex.Message);
+                HabilitarEnviar(false);
             }
+            HabilitarEnviar(false);
+            return;
         }
 
         /*
@@ -110,9 +160,57 @@ namespace ChatServidor_PeraHerreraTabare
             }
         }
         */
-        private void UDP_ClienteChatForm_Load_1(object sender, EventArgs e)
-        {
+        
+        private void btnEnviar_Click(object sender, EventArgs e)
+        { 
 
+            string paquete = "CLIENTE>>> " + entradaTextBox.Text;
+            if(paquete == "CLIENTE>>> Terminar conexion")
+            {
+                conectado = false;
+            }
+            MostrarMensaje("\r\nEnviado paquete que contiene: " + paquete);
+
+            byte[] datos = System.Text.Encoding.ASCII.GetBytes(paquete);
+
+            // Utiliza las variables de la clase para obtener la IP y puerto del servidor
+            IPAddress serverIP = IPAddress.Parse(VariablesDefaultChat.UPD_Server_IP);
+            int serverPort = int.Parse(VariablesDefaultChat.UDP_Server_Port);
+
+            cliente.Send(datos, datos.Length, serverIP.ToString(), serverPort);
+            MostrarMensaje( "\r\nPaquete enviado\r\n");
+            ClearInput("");
+        }
+
+        private bool iniciarConexion()
+        {
+            bool conexionExitosa = false;
+            try
+            {
+                string paquete = "CLIENTE>>> Iniciar Conexion";
+                MostrarMensaje("\r\nEnviado paquete para iniciar la conexión: " + paquete);
+
+                byte[]  datos = System.Text.Encoding.ASCII.GetBytes(paquete);
+
+                // Utiliza las variables de la clase para obtener la IP y puerto del servidor
+                IPAddress serverIP = IPAddress.Parse(VariablesDefaultChat.UPD_Server_IP);
+                int serverPort = int.Parse(VariablesDefaultChat.UDP_Server_Port);
+
+                cliente.Send(datos, datos.Length, serverIP.ToString(), serverPort);
+                MostrarMensaje( "\r\nPaquete enviado\r\n");
+                ClearInput("");
+                conexionExitosa = true;
+                HabilitarEnviar(true);
+
+            } 
+            catch (Exception)
+            {
+                    MessageBox.Show("No pudo conectarse a: " + VariablesDefaultChat.UDP_Client_IP + ":" + VariablesDefaultChat.UDP_Client_Port,
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+            return conexionExitosa;
         }
     }
 }

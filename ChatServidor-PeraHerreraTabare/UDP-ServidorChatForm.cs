@@ -21,14 +21,20 @@ namespace ChatServidor_PeraHerreraTabare
 
         private UdpClient cliente; //clase que maneja la comunicación a través de UDP. Se encarga de enviar y recibir los paquetes.
         private IPEndPoint puntoRecepcion; //almacenar la dirección IP y el número de puerto de una máquina
+        private bool conectado; // Bandera que marca que seguimos esperando paquetes
 
         private void UDP_ServidorChatForm_Load(object sender, EventArgs e)
         {
+            ConfiguracionesForm configTcpServ = new ConfiguracionesForm("UDP", "Server");
+            configTcpServ.ShowDialog(); 
+
             IPAddress serverIP = IPAddress.Parse(VariablesDefaultChat.UPD_Server_IP);
             int serverPort = int.Parse(VariablesDefaultChat.UDP_Server_Port);
 
             cliente = new UdpClient(serverPort);
             puntoRecepcion = new IPEndPoint(new IPAddress(0), 0);
+
+            conectado = true;
 
             Thread lecturaThread = new Thread(new ThreadStart(EsperarPaquetes));
             lecturaThread.Start();
@@ -56,18 +62,25 @@ namespace ChatServidor_PeraHerreraTabare
 
         public void EsperarPaquetes()
         {
-            while (true)
+            MostrarMensaje("Servidor iniciado, esperando mensajes de clientes\r\n Se enviará un eco del mensaje recibido al cliente");
+            while (conectado)
             {
                 byte[] datos = cliente.Receive(ref puntoRecepcion);
+                string mensaje = System.Text.Encoding.ASCII.GetString(datos);
                 MostrarMensaje("\r\nSe recibió paquete:" + "\r\nLongitud: " + datos.Length +
-                "\r\nContenido: " +
-                System.Text.Encoding.ASCII.GetString(datos));
+                "\r\nContenido: " + mensaje);
+                if(mensaje == "CLIENTE>>> Terminar conexion")
+                {
+                    conectado = false;
+                    break;
+                }
                 MostrarMensaje("\r\n\r\nEnviando de vuelta datos al cliente...");
                 cliente.Send(datos, datos.Length, puntoRecepcion);
                 MostrarMensaje("\r\nPaquete enviado\r\n");
             }
+            MostrarMensaje("\r\n\r\nSe terminó la conexión con el cliente, cerrando el programa...");
+            Thread.Sleep(5000);
+            System.Environment.Exit(System.Environment.ExitCode);
         }
-
-
     }
 }

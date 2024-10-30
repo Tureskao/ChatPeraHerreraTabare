@@ -25,7 +25,7 @@ namespace ChatServidor_PeraHerreraTabare
         TCP_Server_Port = "50000";
         UDP_Server_Port = "50001";
         TCP_Client_Port = "50000";
-        UDP_Client_Port = "50001";
+        UDP_Client_Port = "50000";
         }
 
        
